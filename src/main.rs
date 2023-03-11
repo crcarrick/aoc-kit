@@ -22,7 +22,8 @@ fn main() -> Result<()> {
     match cli {
         CLI::Login(c) => {
             match commands::login::run_command(c) {
-                Err(_e) => {
+                Err(e) => {
+                    eprintln!("{:?}", e);
                     // TODO: Handle the error
                 }
                 Ok(()) => {
@@ -31,7 +32,7 @@ fn main() -> Result<()> {
             };
         }
         CLI::Scaffold(c) => {
-            match commands::scaffold::run_command(c) {
+            match commands::scaffold::run_command(c, &cfg.session_token) {
                 Err(e) => {
                     eprintln!("{:?}", e);
                     // TODO: Handle the error
@@ -44,6 +45,7 @@ fn main() -> Result<()> {
         CLI::Submit(c) => {
             match commands::submit::run_command(c) {
                 Err(e) => {
+                    eprintln!("{:?}", e);
                     // TODO: Handle the error
                 }
                 Ok(()) => {

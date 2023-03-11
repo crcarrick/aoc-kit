@@ -13,9 +13,12 @@ pub struct Command {
     part: String,
 }
 
-fn get_url(day: &str, part: &str) -> String {
+fn get_url(command: &Command) -> String {
     // TODO: Get the year somehow
-    String::from("https://adventofcode.com/2022/day/") + day + "#part" + part
+    let day = &command.day;
+    let part = &command.part;
+
+    format!("https://adventofcode/2022/day/${day}#part${part}")
 }
 
 // TODO: Get access to Config struct here
@@ -25,7 +28,7 @@ pub fn run_command(command: Command) -> Result<()> {
     //          If Err: some message
 
     // TODO: Open the next puzzle with webbrowser
-    webbrowser::open(&get_url(&command.day, &command.part))?;
+    webbrowser::open(&get_url(&command))?;
 
     Ok(())
 }
