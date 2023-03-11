@@ -2,6 +2,9 @@ use anyhow::Result;
 use clap::Parser;
 
 mod commands;
+mod http;
+
+use http::AdventClient;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -18,10 +21,11 @@ enum CLI {
 fn main() -> Result<()> {
     let cli = CLI::parse();
     let cfg: commands::login::Config = confy::load("com.github.crcarrick.aockit", None)?;
+    let client = AdventClient::new(&cfg.session_token)?;
 
     match cli {
-        CLI::Login(c) => {
-            match commands::login::run_command(c) {
+        CLI::Login(command) => {
+            match commands::login::run_command(command) {
                 Err(e) => {
                     eprintln!("{:?}", e);
                     // TODO: Handle the error
@@ -31,8 +35,8 @@ fn main() -> Result<()> {
                 }
             };
         }
-        CLI::Scaffold(c) => {
-            match commands::scaffold::run_command(c, &cfg.session_token) {
+        CLI::Scaffold(command) => {
+            match commands::scaffold::run_command(command, &client) {
                 Err(e) => {
                     eprintln!("{:?}", e);
                     // TODO: Handle the error
@@ -42,8 +46,8 @@ fn main() -> Result<()> {
                 }
             };
         }
-        CLI::Submit(c) => {
-            match commands::submit::run_command(c) {
+        CLI::Submit(command) => {
+            match commands::submit::run_command(command, &client) {
                 Err(e) => {
                     eprintln!("{:?}", e);
                     // TODO: Handle the error
