@@ -1,0 +1,19 @@
+[package]
+name = "aoc-kit"
+version = "0.1.0"
+authors = ["Chris Carrick <chris@crcarrick.dev>"]
+license = "MIT"
+description = "Kit for solving Advent of Code puzzles"
+keywords = ["advent of code", "aoc"]
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.69"
+clap = { version = "4.1.8", features = ["derive"] }
+confy = "0.5.1"
+handlebars = { version = "4.3.6", features = ["dir_source"] }
+reqwest = { version = "0.11.14", features = ["blocking", "json", "cookies"] }
+serde = { version = "1.0.154", features = ["derive"] }
+serde_json = "1.0.94"
+tokio = { version = "1.26.0", features = ["full"] }
+webbrowser = { version = "0.8.7", features = ["hardened"] }
