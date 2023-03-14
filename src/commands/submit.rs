@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use chrono::{Datelike, Utc};
 use clap::{Parser, ValueEnum};
 use collection_macros::hashmap;
