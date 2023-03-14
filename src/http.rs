@@ -3,14 +3,15 @@ use std::{collections::HashMap, sync::Arc};
 use anyhow::{anyhow, Result};
 use reqwest::{cookie::Jar, Client, Url};
 
+use crate::config::get_config;
+
 #[derive(Debug)]
-pub struct AdventClient {
+pub struct AOCClient {
     client: Client,
 }
 
 #[derive(Debug, Default)]
 struct Params {
-    // TODO: learn about lifetimes
     params: Vec<(String, String)>,
 }
 
@@ -31,10 +32,13 @@ impl TryFrom<HashMap<&str, &str>> for Params {
     }
 }
 
-impl AdventClient {
-    pub fn new(token: &str) -> Result<AdventClient> {
+impl AOCClient {
+    pub fn new() -> Result<AOCClient> {
+        let cfg = get_config()?;
+        let token = cfg.session_token;
+
         if token.is_empty() {
-            // TODO: error message
+            // TODO: better error message
             return Err(anyhow!("received empty token"));
         }
 
@@ -46,7 +50,7 @@ impl AdventClient {
 
         let client = Client::builder().cookie_provider(Arc::new(jar)).build()?;
 
-        return Ok(AdventClient { client });
+        return Ok(AOCClient { client });
     }
 
     #[tokio::main]

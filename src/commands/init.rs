@@ -1,19 +1,8 @@
-use std::path::PathBuf;
-
 use anyhow::Result;
 use chrono::{Datelike, Utc};
 use clap::Parser;
-use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct Store {
-    pub session_token: String,
-}
-
-#[derive(Debug, Default, Deserialize, Serialize)]
-pub struct Config {
-    pub current_year: String,
-}
+use crate::config::set_config;
 
 #[derive(Debug, Parser)]
 /// init the Advent of Code project
@@ -27,26 +16,7 @@ pub struct Command {
 }
 
 pub fn run_command(args: Command) -> Result<()> {
-    let pwd = std::env::current_dir()?;
-    let mut cfg_path = PathBuf::new();
-
-    cfg_path.push(pwd);
-    cfg_path.push(".aocrc");
-
-    confy::store_path(
-        cfg_path,
-        Config {
-            current_year: args.current_year,
-        },
-    )?;
-
-    confy::store(
-        "com.github.crcarrick.aockit",
-        None,
-        Store {
-            session_token: args.token,
-        },
-    )?;
+    set_config(&args.current_year, &args.token)?;
 
     Ok(())
 }

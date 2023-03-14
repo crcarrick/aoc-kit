@@ -1,10 +1,7 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 
-mod commands;
-mod http;
-
-use http::AdventClient;
+use aoc_kit::commands;
 
 #[derive(Debug, Subcommand)]
 enum Commands {
@@ -26,8 +23,6 @@ struct CLI {
 
 fn main() -> Result<()> {
     let cli = CLI::parse();
-    let cfg: commands::init::Store = confy::load("com.github.crcarrick.aockit", None)?;
-    let client = AdventClient::new(&cfg.session_token)?;
 
     match cli.command {
         Commands::Init(args) => {
@@ -42,7 +37,7 @@ fn main() -> Result<()> {
             };
         }
         Commands::Scaffold(args) => {
-            match commands::scaffold::run_command(args, &client) {
+            match commands::scaffold::run_command(args) {
                 Err(e) => {
                     eprintln!("{:?}", e);
                     // TODO: Handle the error
@@ -53,7 +48,7 @@ fn main() -> Result<()> {
             };
         }
         Commands::Submit(args) => {
-            match commands::submit::run_command(args, &client) {
+            match commands::submit::run_command(args) {
                 Err(e) => {
                     eprintln!("{:?}", e);
                     // TODO: Handle the error

@@ -3,7 +3,7 @@ use chrono::{Datelike, Utc};
 use clap::{Parser, ValueEnum};
 use collection_macros::hashmap;
 
-use crate::AdventClient;
+use crate::http::AOCClient;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Part {
@@ -64,7 +64,9 @@ pub struct Command {
     open: bool,
 }
 
-pub fn run_command(args: Command, client: &AdventClient) -> Result<()> {
+pub fn run_command(args: Command) -> Result<()> {
+    let client = AOCClient::new()?;
+
     let year = &args.year;
     let day = &args.day;
     let part = match args.part {

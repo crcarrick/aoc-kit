@@ -13,10 +13,9 @@ cargo = "0.69.0"
 chrono = { version = "0.4.24", features = ["serde"] }
 clap = { version = "4.1.8", features = ["derive"] }
 collection_macros = "0.2.0"
-confy = "0.5.1"
-dirs = "4.0.0"
+confy = { version = "0.5.1", features = ["serde_yaml", "yaml_conf"], default-features = false }
 handlebars = { version = "4.3.6", features = ["dir_source"] }
-reqwest = { version = "0.11.14", features = ["blocking", "json", "cookies"] }
+reqwest = { version = "0.11.14", features = ["json", "cookies"] }
 serde = { version = "1.0.154", features = ["derive"] }
 serde_json = "1.0.94"
 tokio = { version = "1.26.0", features = ["full"] }

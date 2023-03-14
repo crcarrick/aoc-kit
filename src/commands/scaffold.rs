@@ -7,20 +7,18 @@ use handlebars::Handlebars;
 use serde_json::json;
 use webbrowser;
 
-use crate::http::AdventClient;
+use crate::{config::get_config, http::AOCClient};
 
 #[derive(Debug, Parser)]
 /// create a new puzzle package
 pub struct Command {
-    #[arg(short, long)]
-    year: Option<String>,
-
-    #[arg(short, long)]
-    day: Option<String>,
+    #[arg(short, long, default_value_t = 1)]
+    day: i16,
 }
 
 #[tokio::main]
-async fn get_input(url: &str, client: &AdventClient) -> Result<String> {
+async fn get_input(url: &str) -> Result<String> {
+    let client = AOCClient::new()?;
     let resp = client.get(url, hashmap! {})?.text().await?;
 
     Ok(resp)
@@ -30,14 +28,16 @@ async fn get_input(url: &str, client: &AdventClient) -> Result<String> {
 
 // fn find_next_year() -> String {}
 
-pub fn run_command(args: Command, client: &AdventClient) -> Result<()> {
+pub fn run_command(args: Command) -> Result<()> {
+    let cfg = get_config()?;
+
     let handlebars = Handlebars::new();
     let cargo_str = include_str!("../templates/cargo.hbs");
     let part_str = include_str!("../templates/part.hbs");
     let lib_str = include_str!("../templates/lib.hbs");
 
-    let day = &args.day.unwrap_or("1".to_string());
-    let year = &args.year.unwrap_or("2022".to_string());
+    let day = args.day.to_string();
+    let year = cfg.current_year;
 
     fs::create_dir_all(format!("{year}/{:0>2}", day))?;
 
