@@ -1,7 +1,11 @@
 use std::{collections::HashMap, sync::Arc};
 
 use anyhow::{anyhow, Result};
-use reqwest::{cookie::Jar, Client, Url};
+use reqwest::{
+    blocking::{Client, Response},
+    cookie::Jar,
+    Url,
+};
 
 use crate::config::get_config;
 
@@ -53,11 +57,10 @@ impl AOCClient {
         return Ok(AOCClient { client });
     }
 
-    #[tokio::main]
-    pub async fn get(&self, url: &str, params: HashMap<&str, &str>) -> Result<reqwest::Response> {
+    pub fn get(&self, url: &str, params: HashMap<&str, &str>) -> Result<Response> {
         let params: Params = params.try_into()?;
         let url = Url::parse_with_params(&url, &params.params)?;
-        let resp = self.client.get(url).send().await?;
+        let resp = self.client.get(url).send()?;
 
         match resp.status() {
             reqwest::StatusCode::OK => Ok(resp),
@@ -65,11 +68,10 @@ impl AOCClient {
         }
     }
 
-    #[tokio::main]
-    pub async fn post(&self, url: &str, params: HashMap<&str, &str>) -> Result<reqwest::Response> {
+    pub fn post(&self, url: &str, params: HashMap<&str, &str>) -> Result<Response> {
         let params: Params = params.try_into()?;
         let url = Url::parse_with_params(&url, &params.params)?;
-        let resp = self.client.post(url).send().await?;
+        let resp = self.client.post(url).send()?;
 
         match resp.status() {
             reqwest::StatusCode::OK => Ok(resp),

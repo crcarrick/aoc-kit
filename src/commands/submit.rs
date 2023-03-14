@@ -4,45 +4,12 @@ use clap::{Parser, ValueEnum};
 use collection_macros::hashmap;
 
 use crate::http::AOCClient;
+use crate::utils::{day_in_range, year_in_range};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Part {
     A,
     B,
-}
-
-fn year_in_range(year: &str) -> Result<i32> {
-    let year_range = 2016..=Utc::now().year();
-    let year = year
-        .parse()
-        .map_err(|_| anyhow!("`{}` is not a year number", year))?;
-
-    if year_range.contains(&year) {
-        Ok(year)
-    } else {
-        Err(anyhow!(
-            "year not in range {}-{}",
-            year_range.start(),
-            year_range.end()
-        ))
-    }
-}
-
-fn day_in_range(day: &str) -> Result<i32> {
-    let day_range = 1..=25;
-    let day = day
-        .parse()
-        .map_err(|_| anyhow!("`{}` is not a day number", day))?;
-
-    if day_range.contains(&day) {
-        Ok(day)
-    } else {
-        Err(anyhow!(
-            "day not in range {}-{}",
-            day_range.start(),
-            day_range.end()
-        ))
-    }
 }
 
 #[derive(Parser, Debug)]
