@@ -1,10 +1,10 @@
 use anyhow::Result;
-use chrono::{Datelike, Utc};
 use clap::{Parser, ValueEnum};
 use collection_macros::hashmap;
 
+use crate::config::get_config;
 use crate::http::AOCClient;
-use crate::utils::{day_in_range, year_in_range};
+use crate::utils::day_in_range;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Part {
@@ -17,9 +17,7 @@ enum Part {
 pub struct Command {
     answer: String,
 
-    #[arg(short, long, value_parser = year_in_range, default_value_t = Utc::now().year())]
-    year: i32,
-
+    // TODO: make this optional
     #[arg(short, long, value_parser = day_in_range, default_value_t = 1)]
     day: i16,
 
@@ -33,8 +31,9 @@ pub struct Command {
 
 pub fn run_command(args: Command) -> Result<()> {
     let client = AOCClient::new()?;
+    let cfg = get_config()?;
 
-    let year = &args.year;
+    let year = &cfg.current_year;
     let day = &args.day;
     let part = match args.part {
         Part::A => "a",
