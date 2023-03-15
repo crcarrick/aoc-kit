@@ -29,7 +29,13 @@ pub fn run_command(args: Command) -> Result<String> {
     let cfg = get_config()?;
     let client = AOCClient::new()?;
 
-    if cfg.current_year.is_empty() {
+    let base = match cfg.current_dir.to_str() {
+        Some(b) => b,
+        None => "",
+    };
+    let year = cfg.current_year;
+
+    if base.is_empty() || year.is_empty() {
         return Err(anyhow!("Please run `aoc-kit init`"));
     }
 
@@ -38,8 +44,7 @@ pub fn run_command(args: Command) -> Result<String> {
     let part_str = include_str!("../templates/part.hbs");
     let lib_str = include_str!("../templates/lib.hbs");
 
-    let year = cfg.current_year;
-    fs::create_dir_all(&year)?;
+    fs::create_dir_all(format!("{base}/{year}"))?;
 
     let day = get_latest_day(&year)?;
     let day = match args.day {
@@ -51,7 +56,7 @@ pub fn run_command(args: Command) -> Result<String> {
     }
     .to_string();
 
-    let dir = format!("{year}/day_{:0>2}", day);
+    let dir = format!("{base}/{year}/day_{:0>2}", day);
 
     fs::create_dir_all(format!("{dir}/src/bin"))?;
 
@@ -80,11 +85,11 @@ pub fn run_command(args: Command) -> Result<String> {
         fs::write(format!("{dir}/src/bin/part_{part}.rs"), part_tmpl)?;
     }
 
-    update_workspace(&dir)?;
+    update_workspace(&format!("{year}/{:0>2}", day))?;
 
     if args.open {
         webbrowser::open(&format!("https://adventofcode.com/{year}/day/{day}"))?;
     }
 
-    Ok(format!("Created puzzle {dir}"))
+    Ok(format!("Created puzzle {year}/{:0>2}", day))
 }
