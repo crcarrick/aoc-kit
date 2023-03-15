@@ -28,5 +28,5 @@ pub fn run_command(args: Command) -> Result<String> {
     init_workspace(&current_dir)?;
     set_config(current_year.clone(), current_dir, &args.token)?;
 
-    Ok(format!("year set to {current_year}"))
+    Ok(format!("Set year to {current_year}"))
 }

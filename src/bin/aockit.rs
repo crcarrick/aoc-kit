@@ -31,8 +31,8 @@ fn main() -> Result<()> {
                     eprintln!("{:?}", e);
                     // TODO: handle the error
                 }
-                Ok(r) => {
-                    println!("{}", r);
+                Ok(s) => {
+                    println!("{}", s);
                 }
             };
         }
@@ -42,8 +42,8 @@ fn main() -> Result<()> {
                     eprintln!("{:?}", e);
                     // TODO: handle the error
                 }
-                Ok(r) => {
-                    println!("{}", r);
+                Ok(s) => {
+                    println!("{}", s);
                 }
             };
         }
@@ -53,8 +53,8 @@ fn main() -> Result<()> {
                     eprintln!("{:?}", e);
                     // TODO: handle the error
                 }
-                Ok(r) => {
-                    println!("{:?}", r);
+                Ok(s) => {
+                    println!("{}", s);
                 }
             };
         }

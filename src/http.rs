@@ -43,7 +43,7 @@ impl AOCClient {
 
         if token.is_empty() {
             // TODO: better error message
-            return Err(anyhow!("received empty token"));
+            return Err(anyhow!("Please run `aockit init`"));
         }
 
         let jar = Jar::default();
@@ -57,25 +57,24 @@ impl AOCClient {
         return Ok(AOCClient { client });
     }
 
-    pub fn get(&self, url: &str, params: HashMap<&str, &str>) -> Result<Response> {
+    pub fn get_input(&self, url: &str, params: HashMap<&str, &str>) -> Result<Response> {
         let params: Params = params.try_into()?;
         let url = Url::parse_with_params(&url, &params.params)?;
         let resp = self.client.get(url).send()?;
 
         match resp.status() {
             reqwest::StatusCode::OK => Ok(resp),
-            _ => Err(anyhow!("status code {}", resp.status())),
+            _ => Err(anyhow!("Status code {}", resp.status())),
         }
     }
 
-    pub fn post(&self, url: &str, params: HashMap<&str, &str>) -> Result<Response> {
-        let params: Params = params.try_into()?;
-        let url = Url::parse_with_params(&url, &params.params)?;
-        let resp = self.client.post(url).send()?;
+    pub fn submit_answer(&self, url: &str, params: HashMap<&str, &str>) -> Result<Response> {
+        let url = Url::parse(&url)?;
+        let resp = self.client.post(url).form(&params).send()?;
 
         match resp.status() {
             reqwest::StatusCode::OK => Ok(resp),
-            _ => Err(anyhow!("status code {}", resp.status())),
+            _ => Err(anyhow!("Status code {}", resp.status())),
         }
     }
 }

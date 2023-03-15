@@ -16,7 +16,7 @@ pub fn day_in_range(day: &str) -> Result<i16> {
         Ok(day)
     } else {
         Err(anyhow!(
-            "day not in range {}-{}",
+            "Day not in range {}-{}",
             day_range.start(),
             day_range.end()
         ))
@@ -33,7 +33,7 @@ pub fn year_in_range(year: &str) -> Result<i32> {
         Ok(year)
     } else {
         Err(anyhow!(
-            "year not in range {}-{}",
+            "Year not in range {}-{}",
             year_range.start(),
             year_range.end()
         ))

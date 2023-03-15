@@ -20,7 +20,7 @@ pub struct Command {
     day: Option<i16>,
 
     /// open https://adventofcode.com to the created puzzle
-    #[arg(short, long, default_value_t = true)]
+    #[arg(short, long)]
     open: bool,
 }
 
@@ -30,7 +30,7 @@ pub fn run_command(args: Command) -> Result<String> {
     let client = AOCClient::new()?;
 
     if cfg.current_year.is_empty() {
-        return Err(anyhow!("no year found, please run `aoc-kit init`"));
+        return Err(anyhow!("Please run `aoc-kit init`"));
     }
 
     let handlebars = Handlebars::new();
@@ -56,7 +56,7 @@ pub fn run_command(args: Command) -> Result<String> {
     fs::create_dir_all(format!("{dir}/src/bin"))?;
 
     let input = client
-        .get(
+        .get_input(
             &format!("https://adventofcode.com/{year}/day/{day}/input"),
             hashmap! {},
         )?
@@ -86,5 +86,5 @@ pub fn run_command(args: Command) -> Result<String> {
         webbrowser::open(&format!("https://adventofcode.com/{year}/day/{day}"))?;
     }
 
-    Ok(format!("created {dir}"))
+    Ok(format!("Created puzzle {dir}"))
 }
