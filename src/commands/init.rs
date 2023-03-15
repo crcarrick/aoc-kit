@@ -8,18 +8,23 @@ use crate::utils::year_in_range;
 #[derive(Debug, Parser)]
 /// init the Advent of Code project
 pub struct Command {
-    #[arg(short = 'y', long = "year", value_parser = year_in_range, default_value_t = Utc::now().year())]
-    current_year: i32,
+    #[arg(short, long, value_parser = year_in_range)]
+    year: Option<i32>,
 
     /// https://adventofcode.com session token
     #[arg(short, long)]
     token: String,
 }
 
-pub fn run_command(args: Command) -> Result<()> {
-    let year = args.current_year.to_string();
+pub fn run_command(args: Command) -> Result<String> {
+    let year = match args.year {
+        Some(y) => y,
+        // TODO: check if december, -> return year - 1 if not
+        None => Utc::now().year(),
+    }
+    .to_string();
 
     set_config(&year, &args.token)?;
 
-    Ok(())
+    Ok(format!("year set to {year}"))
 }

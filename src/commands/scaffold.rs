@@ -10,7 +10,7 @@ use webbrowser;
 use crate::{
     config::get_config,
     http::AOCClient,
-    utils::{day_in_range, nearest_aoc_dir},
+    utils::{day_in_range, get_latest_day},
 };
 
 #[derive(Debug, Parser)]
@@ -24,40 +24,10 @@ pub struct Command {
     open: bool,
 }
 
-fn find_next_day(current_year: &str) -> Result<i16> {
-    let pwd = std::env::current_dir()?;
-    let mut dir = nearest_aoc_dir(pwd)?;
-
-    dir.push(current_year);
-
-    let paths = std::fs::read_dir(dir)?;
-    let mut paths = paths.filter_map(|p| p.ok()).collect::<Vec<_>>();
-
-    paths.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
-    let last = paths.last();
-
-    // TODO: good god there has to be a better way to do this
-    if let Some(l) = last {
-        if let Some(f) = l.file_name().to_str() {
-            if let Some((_, day)) = f.split_once("_") {
-                if let Some(d) = day.parse::<i16>().ok() {
-                    if d == 25 {
-                        return Err(anyhow!("25 is the last day of the advent calendar"));
-                    }
-
-                    return Ok(d + 1);
-                }
-            }
-        }
-    }
-
-    Ok(1)
-}
-
-pub fn run_command(args: Command) -> Result<()> {
+pub fn run_command(args: Command) -> Result<String> {
     // TODO: this method needs a refactor
-    let client = AOCClient::new()?;
     let cfg = get_config()?;
+    let client = AOCClient::new()?;
 
     if cfg.current_year.is_empty() {
         return Err(anyhow!("no year found, please run `aoc-kit init`"));
@@ -71,10 +41,15 @@ pub fn run_command(args: Command) -> Result<()> {
     let year = cfg.current_year;
     fs::create_dir_all(&year)?;
 
+    let day = get_latest_day(&year)?;
     let day = match args.day {
-        Some(d) => d.to_string(),
-        None => find_next_day(&year)?.to_string(),
-    };
+        Some(d) => d,
+        None => match day {
+            1 => 1,
+            _ => day,
+        },
+    }
+    .to_string();
 
     let dir = format!("{year}/day_{:0>2}", day);
 
@@ -107,5 +82,5 @@ pub fn run_command(args: Command) -> Result<()> {
         webbrowser::open(&format!("https://adventofcode.com/{year}/day/{day}"))?;
     }
 
-    Ok(())
+    Ok(format!("created {dir}"))
 }

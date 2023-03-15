@@ -14,7 +14,7 @@ enum Commands {
 #[command(
     author = "Chris Carrick <chris@crcarrick.dev>",
     version = "0.1.0",
-    about = "Kit for solving Advent of Code puzzles"
+    about = "Utilities for solving Advent of Code puzzles"
 )]
 struct CLI {
     #[command(subcommand)]
@@ -29,10 +29,10 @@ fn main() -> Result<()> {
             match commands::init::run_command(args) {
                 Err(e) => {
                     eprintln!("{:?}", e);
-                    // TODO: Handle the error
+                    // TODO: handle the error
                 }
-                Ok(()) => {
-                    // TODO: Some output
+                Ok(r) => {
+                    println!("{}", r);
                 }
             };
         }
@@ -40,10 +40,10 @@ fn main() -> Result<()> {
             match commands::scaffold::run_command(args) {
                 Err(e) => {
                     eprintln!("{:?}", e);
-                    // TODO: Handle the error
+                    // TODO: handle the error
                 }
-                Ok(()) => {
-                    // TODO: Some output
+                Ok(r) => {
+                    println!("{}", r);
                 }
             };
         }
@@ -51,10 +51,10 @@ fn main() -> Result<()> {
             match commands::submit::run_command(args) {
                 Err(e) => {
                     eprintln!("{:?}", e);
-                    // TODO: Handle the error
+                    // TODO: handle the error
                 }
-                Ok(()) => {
-                    // TODO: Some output
+                Ok(r) => {
+                    println!("{:?}", r);
                 }
             };
         }

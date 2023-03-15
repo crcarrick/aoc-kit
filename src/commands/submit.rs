@@ -1,10 +1,11 @@
 use anyhow::Result;
 use clap::{Parser, ValueEnum};
 use collection_macros::hashmap;
+use reqwest::blocking::Response;
 
 use crate::config::get_config;
 use crate::http::AOCClient;
-use crate::utils::day_in_range;
+use crate::utils::{day_in_range, get_latest_day, year_in_range};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 enum Part {
@@ -17,9 +18,11 @@ enum Part {
 pub struct Command {
     answer: String,
 
-    // TODO: make this optional
-    #[arg(short, long, value_parser = day_in_range, default_value_t = 1)]
-    day: i16,
+    #[arg(short, long, value_parser = year_in_range)]
+    year: Option<i32>,
+
+    #[arg(short, long, value_parser = day_in_range)]
+    day: Option<i16>,
 
     #[arg(short, long, value_enum, default_value_t = Part::A)]
     part: Part,
@@ -29,12 +32,15 @@ pub struct Command {
     open: bool,
 }
 
-pub fn run_command(args: Command) -> Result<()> {
-    let client = AOCClient::new()?;
+pub fn run_command(args: Command) -> Result<Response> {
     let cfg = get_config()?;
+    let client = AOCClient::new()?;
 
     let year = &cfg.current_year;
-    let day = &args.day;
+    let day = match args.day {
+        Some(d) => d,
+        None => get_latest_day(&year)?,
+    };
     let part = match args.part {
         Part::A => "a",
         Part::B => "b",
@@ -42,7 +48,7 @@ pub fn run_command(args: Command) -> Result<()> {
 
     // TODO: It would be really nice if we could _run_ the solutions
     //       and then submit the output
-    client.post(
+    let resp = client.post(
         &format!("https://adventofcode/{year}/day/{day}/answer"),
         hashmap! {
             "answer" => args.answer.as_str(),
@@ -54,5 +60,5 @@ pub fn run_command(args: Command) -> Result<()> {
         webbrowser::open(&format!("https://adventofcode.com/{year}/day/{}", day + 1))?;
     }
 
-    Ok(())
+    Ok(resp)
 }

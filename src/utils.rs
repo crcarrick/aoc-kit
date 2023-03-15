@@ -61,3 +61,29 @@ pub fn nearest_aoc_dir(dir: PathBuf) -> Result<PathBuf> {
 
     return Err(anyhow!("could not find aoc.yml"));
 }
+
+pub fn get_latest_day(current_year: &str) -> Result<i16> {
+    let pwd = std::env::current_dir()?;
+    let mut dir = nearest_aoc_dir(pwd)?;
+
+    dir.push(current_year);
+
+    let paths = std::fs::read_dir(dir)?;
+    let mut paths = paths.filter_map(|p| p.ok()).collect::<Vec<_>>();
+
+    paths.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
+    let last = paths.last();
+
+    // TODO: good god there has to be a better way to do this
+    if let Some(l) = last {
+        if let Some(f) = l.file_name().to_str() {
+            if let Some((_, day)) = f.split_once("_") {
+                if let Some(d) = day.parse::<i16>().ok() {
+                    return Ok(d);
+                }
+            }
+        }
+    }
+
+    Ok(1)
+}
