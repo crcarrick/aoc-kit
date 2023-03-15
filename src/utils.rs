@@ -46,24 +46,23 @@ pub fn get_latest_day(current_year: &str) -> Result<i16> {
 
     dir.push(current_year);
 
-    let paths = std::fs::read_dir(dir)?;
-    let mut paths = paths.filter_map(|p| p.ok()).collect::<Vec<_>>();
+    let paths = fs::read_dir(&dir)?;
 
-    paths.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
-    let last = paths.last();
-
-    // TODO: good god there has to be a better way to do this
-    if let Some(l) = last {
-        if let Some(f) = l.file_name().to_str() {
-            if let Some((_, day)) = f.split_once("_") {
-                if let Some(d) = day.parse::<i16>().ok() {
-                    return Ok(d);
-                }
-            }
+    let mut max_day: Option<i16> = None;
+    for entry in paths {
+        let entry = entry?;
+        if let Some(day) = extract_day_from_filename(&entry.file_name()) {
+            max_day = Some(max_day.map_or(day, |max| max.max(day)));
         }
     }
 
-    Ok(1)
+    Ok(max_day.unwrap_or(1))
+}
+
+fn extract_day_from_filename(filename: &std::ffi::OsString) -> Option<i16> {
+    let file_name_str = filename.to_str()?;
+    let day_str = file_name_str.split_once("_")?.1;
+    day_str.parse::<i16>().ok()
 }
 
 #[derive(Debug, Deserialize, Serialize)]
