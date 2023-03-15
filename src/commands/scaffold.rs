@@ -10,7 +10,7 @@ use webbrowser;
 use crate::{
     config::get_config,
     http::AOCClient,
-    utils::{day_in_range, get_latest_day},
+    utils::{day_in_range, get_latest_day, update_workspace},
 };
 
 #[derive(Debug, Parser)]
@@ -46,7 +46,7 @@ pub fn run_command(args: Command) -> Result<String> {
         Some(d) => d,
         None => match day {
             1 => 1,
-            _ => day,
+            _ => day + 1,
         },
     }
     .to_string();
@@ -72,11 +72,15 @@ pub fn run_command(args: Command) -> Result<String> {
 
     for part in 'a'..='b' {
         let part = part.to_string();
-        let part_tmpl =
-            handlebars.render_template(part_str, &json!({ "day": day, "part": part }))?;
+        let part_tmpl = handlebars.render_template(
+            part_str,
+            &json!({ "day": format!("{:0>2}", day), "part": part }),
+        )?;
 
         fs::write(format!("{dir}/src/bin/part_{part}.rs"), part_tmpl)?;
     }
+
+    update_workspace(&dir)?;
 
     if args.open {
         webbrowser::open(&format!("https://adventofcode.com/{year}/day/{day}"))?;

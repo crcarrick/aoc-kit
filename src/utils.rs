@@ -1,7 +1,10 @@
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 use anyhow::{anyhow, Result};
 use chrono::{Datelike, Utc};
+use serde::{Deserialize, Serialize};
+
+use crate::config::get_config;
 
 pub fn day_in_range(day: &str) -> Result<i16> {
     let day_range = 1..=25;
@@ -37,34 +40,9 @@ pub fn year_in_range(year: &str) -> Result<i32> {
     }
 }
 
-pub fn nearest_aoc_dir(dir: PathBuf) -> Result<PathBuf> {
-    let paths = std::fs::read_dir(&dir)?;
-
-    let found = paths
-        .filter_map(|p| p.ok())
-        .find(|p| {
-            if let Some(m) = p.metadata().ok() {
-                return m.is_file() && p.file_name() == "aoc.yml";
-            }
-
-            return false;
-        })
-        .is_some();
-
-    if found {
-        return Ok(dir);
-    }
-
-    if let Some(p) = dir.parent() {
-        return nearest_aoc_dir(p.to_path_buf());
-    }
-
-    return Err(anyhow!("could not find aoc.yml"));
-}
-
 pub fn get_latest_day(current_year: &str) -> Result<i16> {
-    let pwd = std::env::current_dir()?;
-    let mut dir = nearest_aoc_dir(pwd)?;
+    let cfg = get_config()?;
+    let mut dir = cfg.current_dir.clone();
 
     dir.push(current_year);
 
@@ -86,4 +64,44 @@ pub fn get_latest_day(current_year: &str) -> Result<i16> {
     }
 
     Ok(1)
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct CargoWorkspace {
+    members: Vec<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct CargoToml {
+    workspace: CargoWorkspace,
+}
+
+pub fn init_workspace(current_dir: &PathBuf) -> Result<()> {
+    let mut path = current_dir.clone();
+
+    path.push("Cargo.toml");
+
+    let cargo = CargoToml {
+        workspace: CargoWorkspace { members: vec![] },
+    };
+
+    fs::write(path, toml::to_string(&cargo)?)?;
+
+    Ok(())
+}
+
+pub fn update_workspace(pkg: &str) -> Result<()> {
+    let cfg = get_config()?;
+    let mut path = cfg.current_dir.clone();
+
+    path.push("Cargo.toml");
+
+    let cargo = fs::read_to_string(&path)?;
+    let mut cargo: CargoToml = toml::from_str(&cargo)?;
+
+    cargo.workspace.members.push(String::from(pkg));
+
+    fs::write(&path, toml::to_string(&cargo)?)?;
+
+    Ok(())
 }
